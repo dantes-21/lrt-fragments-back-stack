@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ideas"
+        android:title="@string/ideas"
+        android:icon="@drawable/ic_light"/>
+    <item
+        android:id="@+id/time"
+        android:title="@string/time"
+        android:icon="@drawable/ic_access_time"/>
+    <item
+        android:id="@+id/favorites"
+        android:title="@string/favorites"
+        android:icon="@drawable/ic_favorite"/>
+    <item
+        android:id="@+id/about"
+        android:title="@string/about"
+        android:icon="@drawable/ic_info"/>
+</menu>
