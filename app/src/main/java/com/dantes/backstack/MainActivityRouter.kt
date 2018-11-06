@@ -2,7 +2,7 @@ package com.dantes.backstack
 
 interface MainActivityRouter {
 
-    fun openIdeasFragment()
+    fun openIdeasFragment(isBack: Boolean = false)
 
     fun openTimeFragment()
 

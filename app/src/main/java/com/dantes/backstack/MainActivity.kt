@@ -57,13 +57,15 @@ class MainActivity : StackAppCompatActivity(),
 
     override fun onBackPressed() {
         if(!mFragmentManager.onBackPressed()) {
-            this.finish()
+            super.onBackPressed()
         }
     }
 
-    override fun openIdeasFragment() {
+    override fun openIdeasFragment(isBack: Boolean) {
         mFragmentManager.changeStack(IDEAS)
-        if(mFragmentManager.peekFragment() == null) {
+        if(isBack) {
+            mFragmentManager.popBackTo(IdeasFragment::class.java.name)
+        } else if(mFragmentManager.peekFragment() == null) {
             mFragmentManager.pushFragment(IdeasFragment.newInstance(), IdeasFragment::class.java.name)
         }
     }

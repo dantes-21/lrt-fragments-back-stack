@@ -3,6 +3,7 @@ package com.dantes.lrtbackstack.manager
 import android.support.annotation.IdRes
 import android.support.v7.app.AppCompatActivity
 import com.dantes.lrtbackstack.exceptions.WrongFragmentContainerException
+import com.dantes.lrtbackstack.listeners.FragmentShowListener
 import com.dantes.lrtbackstack.listeners.StackChangeListener
 
 /**
@@ -21,6 +22,17 @@ class FragmentStackManagerBuilder(activity: AppCompatActivity) {
      */
     fun stackChangeListener(listener: StackChangeListener): FragmentStackManagerBuilder {
         mFragmentManager.stackChangeListener = listener
+        return this
+    }
+
+    /**
+     * Set Fragment Change listener that will be triggered after fragment will be showed.
+     * It may be useful when the user will go back using the Back button
+     *
+     * @param listener - the Fragment Show Listener
+     */
+    fun fragmentShowListener(listener: FragmentShowListener): FragmentStackManagerBuilder {
+        mFragmentManager.fragmentShowListener = listener
         return this
     }
 

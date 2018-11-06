@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import com.dantes.lrtbackstack.listeners.ActivityLifecycleListener
 import com.dantes.lrtbackstack.exceptions.NoSuchStackException
+import com.dantes.lrtbackstack.listeners.FragmentShowListener
 import com.dantes.lrtbackstack.listeners.StackChangeListener
 import java.util.*
 import kotlin.collections.LinkedHashMap
@@ -26,6 +27,7 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     private var mActivityRunning = true
 
     internal var stackChangeListener: StackChangeListener? = null
+    internal var fragmentShowListener: FragmentShowListener? = null
     internal var useStacksHistory = false
     internal var fragmentsContainer = 0
 
@@ -145,6 +147,22 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     }
 
     /**
+     * Get a top fragment from the current stack and show it
+     *
+     * @return fragment if operation is successfully
+     */
+    override fun peekFragment(): Fragment? {
+        if(mFragmentsStacks[mCurrentStack] != null && !mFragmentsStacks[mCurrentStack]!!.isEmpty()) {
+            mFragmentsStacks[mCurrentStack]?.peek()?.let {
+                val fragment = mFragmentManager.findFragmentByTag(it) ?: return null
+                openFragment(fragment, it)
+                return fragment
+            }
+        }
+        return null
+    }
+
+    /**
      * Get a top fragment from the current stack, show it and remove from the stack
      *
      * @return fragment if operation is successfully
@@ -160,19 +178,14 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
         return null
     }
 
-    /**
-     * Get a top fragment from the current stack and show it
-     *
-     * @return fragment if operation is successfully
-     */
-    override fun peekFragment(): Fragment? {
-        if(mFragmentsStacks[mCurrentStack] != null && !mFragmentsStacks[mCurrentStack]!!.isEmpty()) {
-            mFragmentsStacks[mCurrentStack]?.peek()?.let {
-                val fragment = mFragmentManager.findFragmentByTag(it) ?: return null
-                openFragment(fragment, it)
-                return fragment
-            }
-        }
+    override fun popBackTo(tag: String): Fragment? {
+        if(mFragmentsStacks[mCurrentStack] == null || mFragmentsStacks[mCurrentStack]!!.find { it == tag }.isNullOrEmpty())
+            return null
+        do {
+            val fr = mFragmentsStacks[mCurrentStack]!!.peek()
+            if(fr != tag) mFragmentsStacks[mCurrentStack]!!.pop()
+        } while (fr != tag)
+        peekFragment()
         return null
     }
 
@@ -214,12 +227,17 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     }
 
     private fun openFragmentInternal(container: Int, fragment: Fragment, tag: String) {
-        val transaction = mFragmentManager.beginTransaction()
-        transaction.replace(container, fragment, tag)
-        if(mFragmentManager.findFragmentByTag(tag) == null) {
-            transaction.addToBackStack(mCurrentStack)
-        }
-        transaction.commit()
+        mFragmentManager.beginTransaction().apply {
+            if(fragment.isAdded) {
+                show(fragment)
+            } else {
+                add(container, fragment, tag)
+            }
+            mFragmentManager.fragments.forEach {
+                if(it.tag != tag) hide(it)
+            }
+            fragmentShowListener?.onFragmentShowed(fragment)
+        }.commit()
     }
 
     private fun sortCurrentStacks(stackName: String) {

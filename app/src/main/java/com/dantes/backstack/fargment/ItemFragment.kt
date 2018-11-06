@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.dantes.backstack.MainActivityRouter
 import com.dantes.backstack.R
 import kotlinx.android.synthetic.main.fragment_item.*
 
@@ -32,6 +33,9 @@ class ItemFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
             item_text.text = it.getString(ITEM)
+        }
+        item_text.setOnClickListener {
+            (activity as MainActivityRouter).openIdeasFragment(true)
         }
     }
 }

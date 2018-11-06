@@ -16,6 +16,8 @@ interface FragmentStackManager {
 
     fun popFragment(): Fragment?
 
+    fun popBackTo(tag: String): Fragment?
+
     fun onBackPressed(): Boolean
 
 }
