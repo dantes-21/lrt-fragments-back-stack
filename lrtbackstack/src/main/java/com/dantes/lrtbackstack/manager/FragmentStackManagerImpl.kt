@@ -15,7 +15,7 @@ import kotlin.collections.LinkedHashMap
  * inside it. The manager implements lifecycle listener because the information about stacks
  * saves and restores using in the Saved Instance State.
  *
- * User need to use the StackAppCompatActivity or manually call the Lifecycle functions
+ * You have to use the StackAppCompatActivity or manually call the Lifecycle functions
  * in appropriate methods.
  */
 internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentStackManager, ActivityLifecycleListener {
@@ -132,8 +132,8 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     }
 
     /**
-     * Add fragment to the current stack using tag and replace it in the fragment container.
-     * The transaction will be added as deferred transaction to prevent IllegalStateException
+     * Add fragment to the current stack using tag and add it in the fragment container.
+     * The transaction will be added as deferred transaction to prevent the IllegalStateException
      *
      * @param fragment - new fragment
      * @param tag - the fragment tag
@@ -149,7 +149,7 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     /**
      * Get a top fragment from the current stack and show it
      *
-     * @return fragment if operation is successfully
+     * @return if operation is successfully return fragment that was shown, null otherwise
      */
     override fun peekFragment(): Fragment? {
         if(mFragmentsStacks[mCurrentStack] != null && !mFragmentsStacks[mCurrentStack]!!.isEmpty()) {
@@ -165,7 +165,7 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     /**
      * Get a top fragment from the current stack, show it and remove from the stack
      *
-     * @return fragment if operation is successfully
+     * @return if operation is successfully return fragment that was shown, null otherwise
      */
     override fun popFragment(): Fragment? {
         if(mFragmentsStacks[mCurrentStack] != null && !mFragmentsStacks[mCurrentStack]!!.isEmpty()) {
@@ -178,6 +178,13 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
         return null
     }
 
+    /**
+     * Go back to some fragment in the current stack if its exist
+     *
+     * @param tag - the tag of the fragment to which we will move
+     * @return fragment that will be shown after the method is executed, null if there is no
+     *         fragment in the stack with this tag
+     */
     override fun popBackTo(tag: String): Fragment? {
         if(mFragmentsStacks[mCurrentStack] == null || mFragmentsStacks[mCurrentStack]!!.find { it == tag }.isNullOrEmpty())
             return null
@@ -185,15 +192,14 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
             val fr = mFragmentsStacks[mCurrentStack]!!.peek()
             if(fr != tag) mFragmentsStacks[mCurrentStack]!!.pop()
         } while (fr != tag)
-        peekFragment()
-        return null
+        return peekFragment()
     }
 
     /**
      * It may be called in the onBackPressed method in the activity class to simplify the
      * work with stacks when user want to go back from current fragment
      *
-     * @return true if some fragment was showed, false if the stack is empty. When you get
+     * @return true if some fragment was shown, false if the stack is empty. When you get
      *         false you may to call super.onBackPressed() or whatever you want to handle the
      *         end of the fragments stacks
      */
