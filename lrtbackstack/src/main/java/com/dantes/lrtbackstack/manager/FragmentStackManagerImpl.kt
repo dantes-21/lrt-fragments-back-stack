@@ -29,6 +29,7 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     internal var stackChangeListener: StackChangeListener? = null
     internal var fragmentShowListener: FragmentShowListener? = null
     internal var useStacksHistory = false
+    internal var saveStackRootFragment = false
     internal var fragmentsContainer = 0
 
     companion object {
@@ -207,10 +208,16 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
         if(getStackSize(mCurrentStack) > 1) {
             mFragmentsStacks[mCurrentStack]?.pop()
             return peekFragment() != null
-        } else if(getStackSize(mCurrentStack) == 1 && useStacksHistory) {
+        } else if(getStackSize(mCurrentStack) == 1 && useStacksHistory && !saveStackRootFragment) {
             mFragmentsStacks[mCurrentStack]?.pop()
             getPreviousStack()?.let {
                 mFragmentsStacks.remove(mCurrentStack)
+                mCurrentStack = it
+                stackChangeListener?.onStackChanged(it)
+                return peekFragment() != null
+            }
+        } else if(getStackSize(mCurrentStack) == 1 && useStacksHistory && saveStackRootFragment) {
+            getPreviousStack()?.let {
                 mCurrentStack = it
                 stackChangeListener?.onStackChanged(it)
                 return peekFragment() != null

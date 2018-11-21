@@ -41,10 +41,25 @@ class FragmentStackManagerBuilder(activity: AppCompatActivity) {
      * stack will be selected as the current stack. When param is false and the end
      * of the stack is reached, the onBackPressed or some other functions will return false
      *
-     * @param useStacksHistory - tru if history will be used, false otherwise
+     * @param useStacksHistory - true if history will be used, false otherwise
      */
     fun useStacksHistory(useStacksHistory: Boolean): FragmentStackManagerBuilder {
         mFragmentManager.useStacksHistory = useStacksHistory
+        return this
+    }
+
+    /**
+     * If this is true, then when the last fragment of the current stack is reached, this
+     * fragment will not be destroyed and removed from stack, but will stay on current state.
+     * The next stack will be chosen after back pressed (if @useStacksHistory is true) or
+     * app will be closed otherwise. When the param is false (by default)
+     * the last fragment will be deleted from stack and the current stack will be deleted too.
+     *
+     * @param saveStackRootFragment - true if the last fragment in stack have to be saved with
+     *                                current state, false if the last fragment have to be destroyed
+     */
+    fun saveStackRootFragment(saveStackRootFragment: Boolean): FragmentStackManagerBuilder {
+        mFragmentManager.saveStackRootFragment = saveStackRootFragment
         return this
     }
 
