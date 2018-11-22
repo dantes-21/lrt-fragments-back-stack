@@ -23,7 +23,7 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     private val mFragmentManager = activity.supportFragmentManager
 
     private var mFragmentsStacks = LinkedHashMap<String, LinkedList<String>>()
-    private var mCurrentStack: String? = "default"
+    private var mCurrentStack: String = "default"
     private var mActivityRunning = true
 
     internal var stackChangeListener: StackChangeListener? = null
@@ -109,6 +109,15 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
     }
 
     /**
+     * Read the current stack name
+     *
+     * @return stack name as String
+     */
+    override fun getCurrentStackName(): String {
+        return mCurrentStack
+    }
+
+    /**
      * Return the stack size
      *
      * @param stackName - the name of the stack
@@ -140,8 +149,8 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
      * @param tag - the fragment tag
      */
     override fun pushFragment(fragment: Fragment, tag: String) {
-        if(mFragmentsStacks.isEmpty() && mCurrentStack != null) {
-            mFragmentsStacks.put(mCurrentStack!!, LinkedList())
+        if(mFragmentsStacks.isEmpty()) {
+            mFragmentsStacks.put(mCurrentStack, LinkedList())
         }
         pushTagToStack(tag)
         openFragment(fragment, tag)
@@ -224,6 +233,28 @@ internal class FragmentStackManagerImpl(activity: AppCompatActivity) : FragmentS
             }
         }
         return false
+    }
+
+    /**
+     * Helper method to avoid boilerplate code in your activity or router. Method opens the
+     * root fragment. It creates the stack and push the fragment if the stack was not created earlier
+     * or was empty. If user already in the current stack, method will pop back to the @tag (have to be
+     * the tag of the root fragment). If the root fragment is already created it will be peeked
+     * from stack and showed
+     *
+     * @param stack - the new stack, which will be switched
+     * @param fragment - root fragment
+     * @param tag - the tag of the root fragment
+     */
+    override fun openRootFragment(stack: String, fragment: Fragment, tag: String) {
+        if(mCurrentStack == stack) {
+            popBackTo(tag)
+        } else {
+            changeStack(stack)
+            if (peekFragment() == null) {
+                pushFragment(fragment, tag)
+            }
+        }
     }
 
     private fun openFragment(fragment: Fragment, tag: String) {
